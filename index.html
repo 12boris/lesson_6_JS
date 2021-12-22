@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Lesson 6.</title>
+        <link rel="stylesheet" href="main.css" />
+    </head>
+    <body>
+        <div id="wrapper">
+            <div id="catalog"></div>
+            <footer id="basket"></footer>
+        </div>
+    </body>
+
+    <script>
+
+        function Item(product, price) {
+            this.product = product; this.price = price;
+        }
+
+        let catalodList = []
+
+        catalodList.push(new Item('macbook', 123));
+        catalodList.push(new Item('ipad', 14));
+        catalodList.push(new Item('honor', 54));
+        catalodList.push(new Item('lui', 3200));
+        catalodList.push(new Item('NoName', 55));
+        catalodList.push(new Item('Merch', 44));
+
+        function drowItems() {
+            catalodList.forEach(function (item, i) {
+                drowItem(item, i);
+            })
+        }
+
+        const $catalog = document.querySelector('#catalog');
+        function drowItem(item, id) {
+            $catalog.insertAdjacentHTML('beforeend', 
+            `<div id="item-${id}" class="prod_item">
+                <div class="item">
+                    <div class="item">${item.product}</div>
+                    <div class="price">Цена: 
+                        <span>${item.price}</span> руб.
+                    </div>
+                </div>
+                <div class="sale">
+                    <div data-id="${id}" class="button">В корзину</div>
+                </div>
+            </div>`);
+        }
+        drowItems(catalodList);
+
+        let shoppingCart = [];
+        let emptyBasket = 'Ваша корзина пуста.';
+
+        function basketItem(product, price, discount=0) {
+            this.product = product;
+            this.price = price;
+            this.discount = discount;
+            this.finalPrice = function() {
+                if (this.discount != 0) {
+                    return this.price - this.price * this.discount/100;
+                } else {
+                    return this.price;
+                }
+            }
+        }
+
+        function totalSumm(shoppingCart) {
+            return shoppingCart.reduce(function (acc, price) {
+                return acc + price.finalPrice();
+            }, 0);
+        }
+
+        function Total (shoppingCart) {
+            const $basket = document.querySelector('#basket'); $basket.textContent = '';
+
+            if (shoppingCart == 0) {
+                $basket.insertAdjacentHTML('beforeend', `<div class="total">${emptyBasket}</div>`);
+            } else {
+                $basket.insertAdjacentHTML('beforeend', 
+                `<div class="total">
+                    <p>В корзине: ${shoppingCart.length} 
+                    товар на сумму ${totalSumm(shoppingCart)} рублей.</p>
+                    <a class="buy" href="#">Купить</a>
+                </div>`);
+            }
+        }
+        Total(shoppingCart);
+
+        $catalog.addEventListener('click', function (e) {
+            if (e.target.className ==='button' ) {
+                const choice = catalodList[Number(e.target.getAttribute('data-id'))];
+                shoppingCart.push(new basketItem(choice.product, choice.price, choice.discount));
+
+                Total(shoppingCart);
+            } 
+        })
+    </script>
+</html>
